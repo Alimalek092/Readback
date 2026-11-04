@@ -1,0 +1,466 @@
+{
+  "profiles": [
+    {
+      "id": "usr_demo_readback_01",
+      "email": "demo@readback.app",
+      "displayName": "Arthur Pendelton",
+      "avatarUrl": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80",
+      "timezone": "America/New_York",
+      "theme": "light",
+      "onboardingCompleted": true,
+      "interests": [
+        "Personal development",
+        "Psychology",
+        "Productivity",
+        "Finance",
+        "Philosophy"
+      ],
+      "readingGoal": "Remember more of what I read and apply it to daily work",
+      "createdAt": "2026-10-01T08:00:00.000Z",
+      "updatedAt": "2026-11-01T10:00:00.000Z"
+    },
+    {
+      "id": "test_usr_alice",
+      "email": "alice@example.com",
+      "displayName": "Alice Reader",
+      "timezone": "UTC",
+      "theme": "light",
+      "onboardingCompleted": true,
+      "createdAt": "2026-11-04T06:25:42.090Z",
+      "updatedAt": "2026-11-04T06:25:42.093Z"
+    }
+  ],
+  "books": [
+    {
+      "id": "book_atomic_habits",
+      "userId": "usr_demo_readback_01",
+      "title": "Atomic Habits",
+      "author": "James Clear",
+      "isbn": "9780735211292",
+      "coverUrl": "https://covers.openlibrary.org/b/id/12843475-M.jpg",
+      "description": "An easy and proven way to build good habits and break bad ones.",
+      "publicationYear": 2018,
+      "category": "Productivity & Habits",
+      "status": "currently_reading",
+      "progressPercentage": 68,
+      "startedAt": "2026-10-15T00:00:00.000Z",
+      "createdAt": "2026-10-15T09:30:00.000Z",
+      "updatedAt": "2026-11-03T18:20:00.000Z"
+    },
+    {
+      "id": "book_psychology_of_money",
+      "userId": "usr_demo_readback_01",
+      "title": "The Psychology of Money",
+      "author": "Morgan Housel",
+      "isbn": "9780857197689",
+      "coverUrl": "https://covers.openlibrary.org/b/id/10523455-M.jpg",
+      "description": "Timeless lessons on wealth, greed, and happiness.",
+      "publicationYear": 2020,
+      "category": "Finance & Psychology",
+      "status": "completed",
+      "progressPercentage": 100,
+      "startedAt": "2026-09-01T00:00:00.000Z",
+      "completedAt": "2026-10-12T00:00:00.000Z",
+      "createdAt": "2026-09-01T14:10:00.000Z",
+      "updatedAt": "2026-10-12T16:45:00.000Z"
+    },
+    {
+      "id": "book_deep_work",
+      "userId": "usr_demo_readback_01",
+      "title": "Deep Work",
+      "author": "Cal Newport",
+      "isbn": "9781455586691",
+      "coverUrl": "https://covers.openlibrary.org/b/id/8316104-M.jpg",
+      "description": "Rules for focused success in a distracted world.",
+      "publicationYear": 2016,
+      "category": "Productivity & Focus",
+      "status": "completed",
+      "progressPercentage": 100,
+      "startedAt": "2026-08-10T00:00:00.000Z",
+      "completedAt": "2026-08-30T00:00:00.000Z",
+      "createdAt": "2026-08-10T11:00:00.000Z",
+      "updatedAt": "2026-08-30T17:00:00.000Z"
+    },
+    {
+      "id": "book_essentialism",
+      "userId": "usr_demo_readback_01",
+      "title": "Essentialism: The Disciplined Pursuit of Less",
+      "author": "Greg McKeown",
+      "isbn": "9780804137386",
+      "coverUrl": "https://covers.openlibrary.org/b/id/7984916-M.jpg",
+      "description": "The disciplined pursuit of less but better.",
+      "publicationYear": 2014,
+      "category": "Philosophy & Leadership",
+      "status": "want_to_read",
+      "progressPercentage": 0,
+      "createdAt": "2026-10-20T12:00:00.000Z",
+      "updatedAt": "2026-10-20T12:00:00.000Z"
+    },
+    {
+      "id": "book_thinking_fast_slow",
+      "userId": "usr_demo_readback_01",
+      "title": "Thinking, Fast and Slow",
+      "author": "Daniel Kahneman",
+      "isbn": "9780374275631",
+      "coverUrl": "https://covers.openlibrary.org/b/id/7268804-M.jpg",
+      "description": "The two systems that drive the way we think—System 1 (fast, intuitive) and System 2 (slow, deliberative).",
+      "publicationYear": 2011,
+      "category": "Cognitive Psychology",
+      "status": "paused",
+      "progressPercentage": 42,
+      "startedAt": "2026-09-15T00:00:00.000Z",
+      "createdAt": "2026-09-15T09:00:00.000Z",
+      "updatedAt": "2026-10-05T18:00:00.000Z"
+    }
+  ],
+  "notes": [
+    {
+      "id": "note_ah_01",
+      "userId": "usr_demo_readback_01",
+      "bookId": "book_atomic_habits",
+      "title": "The aggregation of marginal gains",
+      "content": "You do not rise to the level of your goals. You fall to the level of your systems. Getting 1 percent better each day compounds into extraordinary results over a year (37x better).",
+      "noteType": "lesson",
+      "pageNumber": 27,
+      "personalReflection": "Focus less on setting ambitious quarterly targets and more on standardizing the first 5 minutes of my morning writing routine.",
+      "isFavourite": true,
+      "tags": [
+        "Habits",
+        "Systems",
+        "Productivity"
+      ],
+      "createdAt": "2026-10-16T08:30:00.000Z",
+      "updatedAt": "2026-10-16T08:30:00.000Z"
+    },
+    {
+      "id": "note_ah_02",
+      "userId": "usr_demo_readback_01",
+      "bookId": "book_atomic_habits",
+      "title": "Environment is the invisible hand",
+      "content": "Environment design is the secret to habit stability. Be the designer of your world and not merely the consumer of it. Make good cues obvious and friction low.",
+      "noteType": "lesson",
+      "pageNumber": 82,
+      "personalReflection": "Moved my Kindle and physical reading notebook right beside the bedside lamp. Phone stays on the study desk across the room.",
+      "isFavourite": true,
+      "tags": [
+        "Habits",
+        "Environment",
+        "Focus"
+      ],
+      "createdAt": "2026-10-18T21:15:00.000Z",
+      "updatedAt": "2026-10-18T21:15:00.000Z"
+    },
+    {
+      "id": "note_ah_03",
+      "userId": "usr_demo_readback_01",
+      "bookId": "book_atomic_habits",
+      "title": "Identity-based habits quote",
+      "content": "Every action you take is a vote for the type of person you wish to become. No single instance will transform your beliefs, but as the votes build up, so does the evidence of your new identity.",
+      "noteType": "quote",
+      "pageNumber": 38,
+      "personalReflection": "Whenever I resist reading before sleep, I remind myself: I am a thoughtful reader who cherishes learning.",
+      "isFavourite": false,
+      "tags": [
+        "Identity",
+        "Psychology"
+      ],
+      "createdAt": "2026-10-19T22:00:00.000Z",
+      "updatedAt": "2026-10-19T22:00:00.000Z"
+    },
+    {
+      "id": "note_pom_01",
+      "userId": "usr_demo_readback_01",
+      "bookId": "book_psychology_of_money",
+      "title": "Controlling your time is the highest dividend",
+      "content": "The highest form of wealth is the ability to wake up every morning and say, \"I can do whatever I want today.\" Financial success is not hard science; it is a soft skill where how you behave matters more than what you know.",
+      "noteType": "lesson",
+      "pageNumber": 85,
+      "personalReflection": "Wealth is not the cars we buy; it is the freedom of schedule and independence it buys our families.",
+      "isFavourite": true,
+      "tags": [
+        "Finance",
+        "Freedom",
+        "Philosophy"
+      ],
+      "createdAt": "2026-09-12T11:20:00.000Z",
+      "updatedAt": "2026-09-12T11:20:00.000Z"
+    },
+    {
+      "id": "note_pom_02",
+      "userId": "usr_demo_readback_01",
+      "bookId": "book_psychology_of_money",
+      "title": "Reasonable beats purely rational",
+      "content": "Do not aim to be coldly rational when making financial decisions. Aim to just be pretty reasonable. Reasonable is more realistic and you have a better chance of sticking with it over the long run.",
+      "noteType": "thought",
+      "pageNumber": 114,
+      "personalReflection": "Having a conservative cash buffer lets me sleep peacefully, even if spreadsheet math suggests investing 100% in index funds.",
+      "isFavourite": false,
+      "tags": [
+        "Finance",
+        "Decision Making"
+      ],
+      "createdAt": "2026-09-24T15:40:00.000Z",
+      "updatedAt": "2026-09-24T15:40:00.000Z"
+    },
+    {
+      "id": "note_dw_01",
+      "userId": "usr_demo_readback_01",
+      "bookId": "book_deep_work",
+      "title": "The Deep Work Hypothesis",
+      "content": "The ability to perform deep work is becoming increasingly rare at exactly the same time it is becoming increasingly valuable in our economy. As a consequence, the few who cultivate this skill, and then make it the core of their working life, will thrive.",
+      "noteType": "lesson",
+      "pageNumber": 14,
+      "personalReflection": "Block 9:00 AM to 11:30 AM every morning with Slack/email closed for high-leverage architectural thinking.",
+      "isFavourite": true,
+      "tags": [
+        "Focus",
+        "Productivity",
+        "Career"
+      ],
+      "createdAt": "2026-08-15T09:00:00.000Z",
+      "updatedAt": "2026-08-15T09:00:00.000Z"
+    },
+    {
+      "id": "note_dw_02",
+      "userId": "usr_demo_readback_01",
+      "bookId": "book_deep_work",
+      "title": "Embrace Boredom",
+      "content": "If every moment of potential boredom in your life—say, having to wait five minutes in line or waiting for a colleague—is relieved with a quick glance at your smartphone, then your brain has likely been rewired to resist sustained concentration.",
+      "noteType": "actionable",
+      "pageNumber": 161,
+      "personalReflection": "Practice standing in line or sitting at red lights without reflexively pulling out my phone.",
+      "isFavourite": false,
+      "tags": [
+        "Focus",
+        "Mindfulness"
+      ],
+      "createdAt": "2026-08-22T17:30:00.000Z",
+      "updatedAt": "2026-08-22T17:30:00.000Z"
+    },
+    {
+      "id": "note_tfs_01",
+      "userId": "usr_demo_readback_01",
+      "bookId": "book_thinking_fast_slow",
+      "title": "WYSIATI — What You See Is All There Is",
+      "content": "System 1 radically constructs coherent stories based on limited available evidence, neglecting what it does not know. It is consistency, not completeness, that determines subjective confidence.",
+      "noteType": "lesson",
+      "pageNumber": 87,
+      "personalReflection": "Whenever I feel 100% sure about a design or business conclusion, ask: \"What evidence am I completely missing right now?\"",
+      "isFavourite": true,
+      "tags": [
+        "Psychology",
+        "Decision Making",
+        "Cognitive Bias"
+      ],
+      "createdAt": "2026-09-20T10:15:00.000Z",
+      "updatedAt": "2026-09-20T10:15:00.000Z"
+    }
+  ],
+  "tags": [
+    {
+      "id": "tag_1",
+      "userId": "usr_demo_readback_01",
+      "name": "Habits",
+      "createdAt": "2026-10-16T08:30:00.000Z"
+    },
+    {
+      "id": "tag_2",
+      "userId": "usr_demo_readback_01",
+      "name": "Systems",
+      "createdAt": "2026-10-16T08:30:00.000Z"
+    },
+    {
+      "id": "tag_3",
+      "userId": "usr_demo_readback_01",
+      "name": "Productivity",
+      "createdAt": "2026-10-16T08:30:00.000Z"
+    },
+    {
+      "id": "tag_4",
+      "userId": "usr_demo_readback_01",
+      "name": "Environment",
+      "createdAt": "2026-10-18T21:15:00.000Z"
+    },
+    {
+      "id": "tag_5",
+      "userId": "usr_demo_readback_01",
+      "name": "Focus",
+      "createdAt": "2026-10-18T21:15:00.000Z"
+    },
+    {
+      "id": "tag_6",
+      "userId": "usr_demo_readback_01",
+      "name": "Finance",
+      "createdAt": "2026-09-12T11:20:00.000Z"
+    },
+    {
+      "id": "tag_7",
+      "userId": "usr_demo_readback_01",
+      "name": "Freedom",
+      "createdAt": "2026-09-12T11:20:00.000Z"
+    },
+    {
+      "id": "tag_8",
+      "userId": "usr_demo_readback_01",
+      "name": "Psychology",
+      "createdAt": "2026-09-20T10:15:00.000Z"
+    },
+    {
+      "id": "tag_9",
+      "userId": "usr_demo_readback_01",
+      "name": "Decision Making",
+      "createdAt": "2026-09-20T10:15:00.000Z"
+    },
+    {
+      "id": "tag_1793773365561_368y",
+      "userId": "test_usr_alice",
+      "name": "Curiosity",
+      "createdAt": "2026-11-04T06:22:45.561Z"
+    }
+  ],
+  "reviewSchedules": [
+    {
+      "id": "rs_01",
+      "userId": "usr_demo_readback_01",
+      "noteId": "note_ah_01",
+      "nextReviewAt": "2026-11-12T06:24:23.671Z",
+      "intervalDays": 8,
+      "easeFactor": 2.6,
+      "repetitions": 3,
+      "reviewStatus": "active",
+      "createdAt": "2026-10-16T08:30:00.000Z",
+      "updatedAt": "2026-11-04T06:24:23.679Z"
+    },
+    {
+      "id": "rs_02",
+      "userId": "usr_demo_readback_01",
+      "noteId": "note_pom_01",
+      "nextReviewAt": "2026-11-22T06:25:42.599Z",
+      "intervalDays": 18,
+      "easeFactor": 2.7,
+      "repetitions": 4,
+      "reviewStatus": "active",
+      "createdAt": "2026-09-12T11:20:00.000Z",
+      "updatedAt": "2026-11-04T06:25:42.604Z"
+    },
+    {
+      "id": "rs_03",
+      "userId": "usr_demo_readback_01",
+      "noteId": "note_dw_01",
+      "nextReviewAt": "2026-11-05T10:00:00.000Z",
+      "intervalDays": 14,
+      "easeFactor": 2.6,
+      "repetitions": 4,
+      "reviewStatus": "active",
+      "createdAt": "2026-08-15T09:00:00.000Z",
+      "updatedAt": "2026-10-22T09:00:00.000Z"
+    },
+    {
+      "id": "rs_04",
+      "userId": "usr_demo_readback_01",
+      "noteId": "note_tfs_01",
+      "nextReviewAt": "2026-11-04T03:00:00.000Z",
+      "intervalDays": 1,
+      "easeFactor": 2.3,
+      "repetitions": 1,
+      "reviewStatus": "active",
+      "createdAt": "2026-09-20T10:15:00.000Z",
+      "updatedAt": "2026-11-03T07:30:00.000Z"
+    }
+  ],
+  "reviewHistory": [
+    {
+      "id": "rh_01",
+      "userId": "usr_demo_readback_01",
+      "noteId": "note_ah_01",
+      "rating": "easy",
+      "reviewedAt": "2026-11-01T09:00:00.000Z",
+      "previousInterval": 1,
+      "nextInterval": 3
+    },
+    {
+      "id": "rh_02",
+      "userId": "usr_demo_readback_01",
+      "noteId": "note_pom_01",
+      "rating": "easy",
+      "reviewedAt": "2026-10-28T09:00:00.000Z",
+      "previousInterval": 3,
+      "nextInterval": 7
+    },
+    {
+      "id": "rh_03",
+      "userId": "usr_demo_readback_01",
+      "noteId": "note_tfs_01",
+      "rating": "difficult",
+      "reviewedAt": "2026-11-03T07:30:00.000Z",
+      "previousInterval": 0.2,
+      "nextInterval": 1
+    },
+    {
+      "id": "rh_1793773463679_mznx",
+      "userId": "usr_demo_readback_01",
+      "noteId": "note_ah_01",
+      "rating": "easy",
+      "reviewedAt": "2026-11-04T06:24:23.679Z",
+      "previousInterval": 3,
+      "nextInterval": 8
+    },
+    {
+      "id": "rh_1793773542604_7xjj",
+      "userId": "usr_demo_readback_01",
+      "noteId": "note_pom_01",
+      "rating": "easy",
+      "reviewedAt": "2026-11-04T06:25:42.604Z",
+      "previousInterval": 7,
+      "nextInterval": 18
+    }
+  ],
+  "actions": [
+    {
+      "id": "act_01",
+      "userId": "usr_demo_readback_01",
+      "noteId": "note_ah_02",
+      "bookId": "book_atomic_habits",
+      "title": "Move phone charger out of bedroom",
+      "description": "Create friction for late-night scrolling and make bedside reading book obvious.",
+      "dueDate": "2026-11-08",
+      "status": "pending",
+      "createdAt": "2026-10-18T21:20:00.000Z"
+    },
+    {
+      "id": "act_02",
+      "userId": "usr_demo_readback_01",
+      "noteId": "note_dw_01",
+      "bookId": "book_deep_work",
+      "title": "Set up calendar morning focus blocks",
+      "description": "Block 9:00 AM - 11:30 AM Monday through Thursday on work calendar.",
+      "dueDate": "2026-10-25",
+      "status": "completed",
+      "completedAt": "2026-10-24T16:00:00.000Z",
+      "createdAt": "2026-08-15T09:15:00.000Z"
+    }
+  ],
+  "subscriptions": [
+    {
+      "id": "sub_demo_01",
+      "userId": "usr_demo_readback_01",
+      "provider": "none",
+      "planId": "free",
+      "status": "active",
+      "cancelAtPeriodEnd": false,
+      "createdAt": "2026-10-01T08:00:00.000Z",
+      "updatedAt": "2026-10-01T08:00:00.000Z"
+    }
+  ],
+  "notificationPreferences": [
+    {
+      "id": "notif_demo_01",
+      "userId": "usr_demo_readback_01",
+      "emailEnabled": true,
+      "pushEnabled": false,
+      "dailyReviewEnabled": true,
+      "preferredReviewTime": "08:30",
+      "timezone": "America/New_York"
+    }
+  ]
+}

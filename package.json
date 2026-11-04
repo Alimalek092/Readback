@@ -1,0 +1,31 @@
+{
+  "name": "readback",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ReadBack — Personal knowledge SaaS for readers. Read less forgetfully. Learn more permanently.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "test": "node \"C:\\Users\\admin\\.gemini\\antigravity\\scratch\\patni-community\\node_modules\\tsx\\dist\\cli.mjs\" test-suite.js && node \"C:\\Users\\admin\\.gemini\\antigravity\\scratch\\patni-community\\node_modules\\tsx\\dist\\cli.mjs\" integration-test.ts",
+    "test:unit": "node \"C:\\Users\\admin\\.gemini\\antigravity\\scratch\\patni-community\\node_modules\\tsx\\dist\\cli.mjs\" test-suite.js",
+    "test:integration": "node \"C:\\Users\\admin\\.gemini\\antigravity\\scratch\\patni-community\\node_modules\\tsx\\dist\\cli.mjs\" integration-test.ts"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.468.0",
+    "next": "14.2.35",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tailwind-merge": "^2.5.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.10",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.16",
+    "typescript": "^5.6.3"
+  }
+}
