@@ -3,13 +3,14 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { BookOpen, ArrowRight, Loader2, Sparkles, CheckCircle2 } from 'lucide-react';
+import { BookOpen, Loader2, Eye, EyeOff, ArrowRight, ShieldCheck } from 'lucide-react';
 
 export default function SignupPage() {
   const router = useRouter();
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -34,7 +35,7 @@ export default function SignupPage() {
 
       router.push(data.redirectTo || '/app/onboarding');
       router.refresh();
-    } catch (err) {
+    } catch {
       setErrorMessage('Network connection error. Please try again.');
       setIsLoading(false);
     }
@@ -42,7 +43,7 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen bg-[#F8F6F0] flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center px-4">
         <Link href="/" className="inline-flex items-center gap-2.5 mb-6 group">
           <div className="w-10 h-10 rounded-xl bg-[#74866B] flex items-center justify-center text-white shadow-sm transition-transform group-hover:scale-105">
             <BookOpen className="w-5 h-5" />
@@ -51,11 +52,11 @@ export default function SignupPage() {
             ReadBack
           </span>
         </Link>
-        <h2 className="font-serif text-2xl font-normal text-[#292820]">
-          Start building your knowledge
+        <h2 className="font-serif text-3xl font-normal text-[#292820]">
+          Create your personal library
         </h2>
-        <p className="mt-2 text-xs text-[#858276]">
-          Capture your first book lesson in seconds. No credit card required.
+        <p className="mt-2 text-xs sm:text-sm text-[#858276]">
+          Sign up with your email address to save books, notes, and reviews.
         </p>
       </div>
 
@@ -70,12 +71,12 @@ export default function SignupPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-[#858276] mb-1.5">
-                Your Name
+                Full Name
               </label>
               <input
                 type="text"
                 required
-                placeholder="Eleanor Vance"
+                placeholder="e.g. Maya Lin"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
                 className="w-full text-sm bg-[#F8F6F0] border border-[#E9E5DC] rounded-xl px-3.5 py-2.5 text-[#292820] placeholder:text-[#858276]/60 focus:border-[#74866B] focus:bg-white transition-colors"
@@ -101,16 +102,26 @@ export default function SignupPage() {
               <label className="block text-xs font-semibold uppercase tracking-wider text-[#858276] mb-1.5">
                 Password (min 6 characters)
               </label>
-              <input
-                type="password"
-                required
-                minLength={6}
-                autoComplete="new-password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full text-sm bg-[#F8F6F0] border border-[#E9E5DC] rounded-xl px-3.5 py-2.5 text-[#292820] placeholder:text-[#858276]/60 focus:border-[#74866B] focus:bg-white transition-colors"
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  minLength={6}
+                  autoComplete="new-password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full text-sm bg-[#F8F6F0] border border-[#E9E5DC] rounded-xl pl-3.5 pr-10 py-2.5 text-[#292820] placeholder:text-[#858276]/60 focus:border-[#74866B] focus:bg-white transition-colors"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#858276] hover:text-[#292820]"
+                  aria-label="Toggle password visibility"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
 
             <button
@@ -118,12 +129,21 @@ export default function SignupPage() {
               disabled={isLoading}
               className="w-full mt-2 py-2.5 px-4 rounded-button bg-[#74866B] hover:bg-[#617258] text-white text-sm font-medium shadow-sm transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50"
             >
-              {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-              <span>{isLoading ? 'Creating account...' : 'Create Free Account'}</span>
+              {isLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <ArrowRight className="w-4 h-4" />
+              )}
+              <span>{isLoading ? 'Creating your workspace...' : 'Create Free Account'}</span>
             </button>
           </form>
 
-          <div className="mt-6 text-center text-xs text-[#858276]">
+          <div className="mt-5 flex items-center justify-center gap-1.5 text-[11px] text-[#858276]">
+            <ShieldCheck className="w-3.5 h-3.5 text-[#74866B]" />
+            <span>Private by default. Export your notes anytime.</span>
+          </div>
+
+          <div className="mt-5 pt-5 border-t border-[#E9E5DC] text-center text-xs text-[#858276]">
             Already have an account?{' '}
             <Link href="/login" className="font-semibold text-[#74866B] hover:underline">
               Sign in →

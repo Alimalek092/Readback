@@ -142,7 +142,54 @@ function testDatabaseIsolation() {
   db.deleteBook(userA, bookA.id);
 }
 
-// 4. Run All
+// 4. Cryptographic Password & Signed Session Token Test
+function testAuthSecurity() {
+  console.log('\n--- 4. Testing Password Hashing, Signed Cookies & Email Validation ---');
+  const {
+    hashPassword,
+    verifyPassword,
+    signSessionToken,
+    verifySessionToken,
+    isValidEmail,
+  } = require('./src/lib/auth');
+  const { db } = require('./src/lib/db');
+
+  assert.strictEqual(isValidEmail('reader@example.com'), true, 'Valid email must pass');
+  assert.strictEqual(isValidEmail('not-an-email'), false, 'Invalid email must fail');
+  assert.strictEqual(isValidEmail('1234567890'), false, 'Phone number must be rejected');
+
+  const hash = hashPassword('MySecretPass123!');
+  assert.strictEqual(verifyPassword('MySecretPass123!', hash), true, 'Valid password must verify');
+  assert.strictEqual(verifyPassword('WrongPass', hash), false, 'Wrong password must fail');
+
+  const token = signSessionToken('usr_12345');
+  assert.strictEqual(verifySessionToken(token), 'usr_12345', 'Valid signed token must return userId');
+  assert.strictEqual(verifySessionToken('usr_99999.tampered'), null, 'Tampered token must be rejected');
+
+  const emailUserId = 'test_usr_email_01';
+  db.saveProfile({
+    id: emailUserId,
+    email: 'maya.lin@example.com',
+    passwordHash: hash,
+    displayName: 'Maya Lin',
+    timezone: 'UTC',
+    theme: 'light',
+    onboardingCompleted: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  });
+
+  const foundByEmail = db.getProfileByEmail('MAYA.LIN@example.com');
+  assert.ok(foundByEmail, 'User should be found by case-insensitive email');
+  assert.strictEqual(foundByEmail.id, emailUserId);
+
+  const deleted = db.deleteUserAccount(emailUserId);
+  assert.strictEqual(deleted, true, 'Account deletion should succeed');
+  assert.strictEqual(db.getProfileByUserId(emailUserId), undefined, 'Deleted account must be gone');
+  console.log('✓ Password hashing, HMAC session verification, email validation & account deletion verified');
+}
+
+// 5. Run All
 try {
   console.log('====================================================');
   console.log('      READBACK SAAS AUTOMATED TEST SUITE            ');
@@ -150,6 +197,7 @@ try {
   testSpacedRepetition();
   testPlanLimits();
   testDatabaseIsolation();
+  testAuthSecurity();
   console.log('\n====================================================');
   console.log('      ALL AUTOMATED VERIFICATION TESTS PASSED       ');
   console.log('====================================================\n');

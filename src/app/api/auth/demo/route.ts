@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { SESSION_COOKIE_NAME } from '@/lib/auth';
+import { SESSION_COOKIE_NAME, sanitizeUser, signSessionToken } from '@/lib/auth';
 
 export async function POST() {
   const demoUser = db.getProfileByEmail('demo@readback.app');
@@ -8,15 +8,17 @@ export async function POST() {
     return NextResponse.json({ error: 'Demo account not initialized.' }, { status: 500 });
   }
 
+  const token = signSessionToken(demoUser.id);
+
   const response = NextResponse.json({
     success: true,
-    user: demoUser,
+    user: sanitizeUser(demoUser),
     redirectTo: '/app',
   });
 
   response.cookies.set({
     name: SESSION_COOKIE_NAME,
-    value: demoUser.id,
+    value: token,
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',

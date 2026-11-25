@@ -10,14 +10,12 @@ import {
   Star,
   Trash2,
   Edit3,
-  Calendar,
-  Layers,
   CheckCircle2,
-  Tag as TagIcon,
-  RotateCw,
-  Sparkles,
+  Circle,
+  X,
+  Calendar,
 } from 'lucide-react';
-import { Book, Note, UserProfile, NoteType } from '@/lib/types';
+import { Book, Note, UserProfile, BookStatus, ActionItem } from '@/lib/types';
 import { BookCover } from '@/components/BookCoverFallback';
 import { Sidebar } from '@/components/Sidebar';
 import { QuickCaptureModal } from '@/components/QuickCaptureModal';
@@ -30,11 +28,29 @@ export default function BookDetailPage() {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [book, setBook] = useState<Book | null>(null);
   const [notes, setNotes] = useState<Note[]>([]);
+  const [actions, setActions] = useState<ActionItem[]>([]);
   const [activeTab, setActiveTab] = useState<'all' | 'lessons' | 'quotes' | 'reflections' | 'actions'>('all');
   const [isLoading, setIsLoading] = useState(true);
   const [quickCaptureOpen, setQuickCaptureOpen] = useState(false);
+  const [editingNote, setEditingNote] = useState<Note | null>(null);
+
+  // Progress inline edit
   const [isEditingProgress, setIsEditingProgress] = useState(false);
   const [newProgress, setNewProgress] = useState(0);
+
+  // Full Edit Book modal
+  const [editBookOpen, setEditBookOpen] = useState(false);
+  const [editTitle, setEditTitle] = useState('');
+  const [editAuthor, setEditAuthor] = useState('');
+  const [editCategory, setEditCategory] = useState('');
+  const [editStatus, setEditStatus] = useState<BookStatus>('currently_reading');
+  const [editProgress, setEditProgress] = useState(0);
+  const [editCoverUrl, setEditCoverUrl] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+
+  // New Action Item form
+  const [newActionTitle, setNewActionTitle] = useState('');
+  const [newActionDue, setNewActionDue] = useState('');
 
   const fetchBookData = () => {
     setIsLoading(true);
@@ -51,13 +67,28 @@ export default function BookDetailPage() {
           setBook(data.book);
           setNotes(data.notes || []);
           setNewProgress(data.book.progressPercentage || 0);
+          setEditTitle(data.book.title);
+          setEditAuthor(data.book.author);
+          setEditCategory(data.book.category);
+          setEditStatus(data.book.status);
+          setEditProgress(data.book.progressPercentage);
+          setEditCoverUrl(data.book.coverUrl || '');
+          setEditDescription(data.book.description || '');
         }
         setIsLoading(false);
       })
       .catch(console.error);
 
-    // Fetch user profile for sidebar
-    fetch('/api/export?format=json')
+    fetch('/api/actions')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.actions) {
+          setActions(data.actions.filter((a: ActionItem) => a.bookId === bookId));
+        }
+      })
+      .catch(console.error);
+
+    fetch('/api/profile')
       .then((res) => res.json())
       .then((data) => {
         if (data.profile) setUser(data.profile);
@@ -70,6 +101,27 @@ export default function BookDetailPage() {
       fetchBookData();
     }
   }, [bookId]);
+
+  const handleStatusChange = async (nextStatus: BookStatus) => {
+    if (!book) return;
+    const nextProg =
+      nextStatus === 'completed' ? 100 : nextStatus === 'want_to_read' ? 0 : book.progressPercentage;
+
+    const res = await fetch(`/api/books/${book.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        status: nextStatus,
+        progressPercentage: nextProg,
+        startedAt:
+          nextStatus === 'currently_reading' && !book.startedAt
+            ? new Date().toISOString()
+            : book.startedAt,
+        completedAt: nextStatus === 'completed' ? new Date().toISOString() : book.completedAt,
+      }),
+    });
+    if (res.ok) fetchBookData();
+  };
 
   const handleUpdateProgress = async () => {
     if (!book) return;
@@ -89,6 +141,28 @@ export default function BookDetailPage() {
       }
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleSaveBookEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!book) return;
+    const res = await fetch(`/api/books/${book.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: editTitle.trim(),
+        author: editAuthor.trim(),
+        category: editCategory.trim() || 'General',
+        status: editStatus,
+        progressPercentage: Number(editProgress),
+        coverUrl: editCoverUrl.trim() || undefined,
+        description: editDescription.trim() || undefined,
+      }),
+    });
+    if (res.ok) {
+      setEditBookOpen(false);
+      fetchBookData();
     }
   };
 
@@ -131,6 +205,49 @@ export default function BookDetailPage() {
     }
   };
 
+  const handleCreateAction = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newActionTitle.trim() || !book) return;
+
+    const res = await fetch('/api/actions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        bookId: book.id,
+        noteId: notes[0]?.id || book.id,
+        title: newActionTitle.trim(),
+        dueDate: newActionDue || undefined,
+      }),
+    });
+
+    if (res.ok) {
+      setNewActionTitle('');
+      setNewActionDue('');
+      fetchBookData();
+    }
+  };
+
+  const handleToggleAction = async (action: ActionItem) => {
+    const nextStatus = action.status === 'completed' ? 'pending' : 'completed';
+    const res = await fetch(`/api/actions/${action.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: nextStatus }),
+    });
+    if (res.ok) {
+      setActions((prev) =>
+        prev.map((a) => (a.id === action.id ? { ...a, status: nextStatus } : a))
+      );
+    }
+  };
+
+  const handleDeleteAction = async (actionId: string) => {
+    const res = await fetch(`/api/actions/${actionId}`, { method: 'DELETE' });
+    if (res.ok) {
+      setActions((prev) => prev.filter((a) => a.id !== actionId));
+    }
+  };
+
   if (isLoading || !book) {
     return (
       <div className="min-h-screen bg-[#F8F6F0] flex items-center justify-center text-[#858276]">
@@ -139,32 +256,31 @@ export default function BookDetailPage() {
     );
   }
 
-  // Filter notes by active tab
   const filteredNotes = notes.filter((n) => {
     if (activeTab === 'lessons') return n.noteType === 'lesson';
     if (activeTab === 'quotes') return n.noteType === 'quote';
     if (activeTab === 'reflections') return Boolean(n.personalReflection);
-    if (activeTab === 'actions') return n.noteType === 'actionable';
     return true;
   });
 
   const lessonsCount = notes.filter((n) => n.noteType === 'lesson').length;
   const quotesCount = notes.filter((n) => n.noteType === 'quote').length;
   const reflectionsCount = notes.filter((n) => Boolean(n.personalReflection)).length;
-  const actionsCount = notes.filter((n) => n.noteType === 'actionable').length;
 
   return (
     <div className="min-h-screen bg-[#F8F6F0] text-[#292820] flex flex-col md:flex-row">
       {user && (
         <Sidebar
           user={user}
-          onOpenQuickCapture={() => setQuickCaptureOpen(true)}
+          onOpenQuickCapture={() => {
+            setEditingNote(null);
+            setQuickCaptureOpen(true);
+          }}
         />
       )}
 
       <main className="flex-1 md:pl-64 min-h-screen flex flex-col">
         <div className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10 space-y-8">
-          {/* Back link */}
           <div>
             <Link
               href="/app/library"
@@ -188,13 +304,21 @@ export default function BookDetailPage() {
 
             <div className="flex-1 min-w-0 flex flex-col justify-between self-stretch space-y-4">
               <div>
-                <div className="flex items-center gap-2 mb-2">
+                <div className="flex flex-wrap items-center gap-2 mb-2">
                   <span className="text-xs font-mono uppercase text-[#74866B] bg-[#E7EDE2] px-2 py-0.5 rounded">
                     {book.category}
                   </span>
-                  <span className="text-xs font-mono text-[#858276] uppercase">
-                    • {book.status.replace(/_/g, ' ')}
-                  </span>
+                  <select
+                    value={book.status}
+                    onChange={(e) => handleStatusChange(e.target.value as BookStatus)}
+                    className="text-xs font-mono uppercase bg-[#F8F6F0] border border-[#E9E5DC] rounded px-2 py-0.5 text-[#292820] focus:border-[#74866B]"
+                  >
+                    <option value="currently_reading">Currently Reading</option>
+                    <option value="want_to_read">Want to Read</option>
+                    <option value="completed">Completed</option>
+                    <option value="paused">Paused</option>
+                    <option value="abandoned">Abandoned</option>
+                  </select>
                 </div>
 
                 <h1 className="font-serif text-2xl sm:text-3xl text-[#292820] leading-tight">
@@ -212,7 +336,6 @@ export default function BookDetailPage() {
                 )}
               </div>
 
-              {/* Progress & Actions */}
               <div className="pt-4 border-t border-[#E9E5DC] space-y-3">
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-[#858276]">Reading Progress:</span>
@@ -259,13 +382,25 @@ export default function BookDetailPage() {
                 </div>
 
                 <div className="flex items-center justify-between pt-1 text-xs">
-                  <button
-                    onClick={() => setQuickCaptureOpen(true)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-button bg-[#74866B] hover:bg-[#617258] text-white text-xs font-medium shadow-sm transition-all"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                    <span>Capture Note</span>
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => {
+                        setEditingNote(null);
+                        setQuickCaptureOpen(true);
+                      }}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-button bg-[#74866B] hover:bg-[#617258] text-white text-xs font-medium shadow-sm transition-all"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Capture Note</span>
+                    </button>
+                    <button
+                      onClick={() => setEditBookOpen(true)}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-button border border-[#E9E5DC] bg-white hover:bg-[#F8F6F0] text-[#292820] text-xs font-medium transition-colors"
+                    >
+                      <Edit3 className="w-3.5 h-3.5" />
+                      <span>Edit Book</span>
+                    </button>
+                  </div>
 
                   <button
                     onClick={handleDeleteBook}
@@ -307,10 +442,10 @@ export default function BookDetailPage() {
             </div>
             <div className="p-3 bg-white rounded-xl border border-[#E9E5DC]">
               <span className="text-[10px] font-semibold uppercase tracking-wider text-[#858276] block mb-1">
-                Actions Attached
+                Action Items
               </span>
               <span className="font-serif text-xl font-bold text-[#292820] num-tabular">
-                {actionsCount}
+                {actions.length}
               </span>
             </div>
           </div>
@@ -358,10 +493,98 @@ export default function BookDetailPage() {
               >
                 Reflections ({reflectionsCount})
               </button>
+              <button
+                onClick={() => setActiveTab('actions')}
+                className={`pb-3 border-b-2 transition-colors whitespace-nowrap ${
+                  activeTab === 'actions'
+                    ? 'border-[#74866B] text-[#74866B]'
+                    : 'border-transparent text-[#858276] hover:text-[#292820]'
+                }`}
+              >
+                Actions ({actions.length})
+              </button>
             </div>
 
-            {/* Note Cards List */}
-            {filteredNotes.length > 0 ? (
+            {activeTab === 'actions' ? (
+              <div className="space-y-4">
+                <form
+                  onSubmit={handleCreateAction}
+                  className="bg-white rounded-xl border border-[#E9E5DC] p-4 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center"
+                >
+                  <input
+                    type="text"
+                    required
+                    placeholder="Add a concrete action to apply from this book..."
+                    value={newActionTitle}
+                    onChange={(e) => setNewActionTitle(e.target.value)}
+                    className="flex-1 text-xs sm:text-sm bg-[#F8F6F0] border border-[#E9E5DC] rounded-lg px-3 py-2 text-[#292820] focus:border-[#74866B] focus:bg-white"
+                  />
+                  <input
+                    type="date"
+                    value={newActionDue}
+                    onChange={(e) => setNewActionDue(e.target.value)}
+                    className="text-xs bg-[#F8F6F0] border border-[#E9E5DC] rounded-lg px-3 py-2 text-[#292820]"
+                  />
+                  <button
+                    type="submit"
+                    className="px-4 py-2 rounded-button bg-[#74866B] hover:bg-[#617258] text-white text-xs font-semibold whitespace-nowrap"
+                  >
+                    + Add Action
+                  </button>
+                </form>
+
+                {actions.length > 0 ? (
+                  <div className="space-y-2.5">
+                    {actions.map((act) => (
+                      <div
+                        key={act.id}
+                        className="bg-white rounded-xl border border-[#E9E5DC] p-4 flex items-center justify-between gap-3"
+                      >
+                        <button
+                          onClick={() => handleToggleAction(act)}
+                          className="flex items-center gap-3 text-left flex-1 min-w-0"
+                        >
+                          {act.status === 'completed' ? (
+                            <CheckCircle2 className="w-5 h-5 text-[#6F8F70] flex-shrink-0" />
+                          ) : (
+                            <Circle className="w-5 h-5 text-[#858276] flex-shrink-0" />
+                          )}
+                          <div className="min-w-0">
+                            <p
+                              className={`text-sm font-medium ${
+                                act.status === 'completed'
+                                  ? 'line-through text-[#858276]'
+                                  : 'text-[#292820]'
+                              }`}
+                            >
+                              {act.title}
+                            </p>
+                            {act.dueDate && (
+                              <p className="text-[11px] text-[#858276] flex items-center gap-1 mt-0.5">
+                                <Calendar className="w-3 h-3" />
+                                <span>Due {act.dueDate}</span>
+                              </p>
+                            )}
+                          </div>
+                        </button>
+                        <button
+                          onClick={() => handleDeleteAction(act.id)}
+                          className="p-1.5 text-[#858276] hover:text-[#B96C64]"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-10 rounded-xl bg-white border border-[#E9E5DC] text-center">
+                    <p className="text-xs text-[#858276]">
+                      No action items yet. Turn one lesson from this book into a real-world commitment above.
+                    </p>
+                  </div>
+                )}
+              </div>
+            ) : filteredNotes.length > 0 ? (
               <div className="space-y-4">
                 {filteredNotes.map((note) => (
                   <div
@@ -381,6 +604,16 @@ export default function BookDetailPage() {
                       </div>
 
                       <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={() => {
+                            setEditingNote(note);
+                            setQuickCaptureOpen(true);
+                          }}
+                          className="p-1 text-[#858276] hover:text-[#292820] rounded transition-colors"
+                          title="Edit note"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" />
+                        </button>
                         <button
                           onClick={() => handleToggleFavourite(note.id)}
                           className={`p-1 rounded transition-colors ${
@@ -450,7 +683,10 @@ export default function BookDetailPage() {
                   Capture a meaningful lesson or sentence while reading this book.
                 </p>
                 <button
-                  onClick={() => setQuickCaptureOpen(true)}
+                  onClick={() => {
+                    setEditingNote(null);
+                    setQuickCaptureOpen(true);
+                  }}
                   className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-button bg-[#74866B] text-white hover:bg-[#617258]"
                 >
                   <Plus className="w-3.5 h-3.5" />
@@ -462,10 +698,135 @@ export default function BookDetailPage() {
         </div>
       </main>
 
+      {/* Edit Book Modal */}
+      {editBookOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+          <div className="w-full max-w-lg bg-white rounded-2xl border border-[#E9E5DC] shadow-elevated overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#E9E5DC] bg-[#FAF8F5]">
+              <h3 className="font-serif text-lg font-semibold text-[#292820]">Edit Book Details</h3>
+              <button onClick={() => setEditBookOpen(false)} className="text-[#858276] hover:text-[#292820]">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <form onSubmit={handleSaveBookEdit} className="p-6 space-y-4">
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-[#858276] mb-1">
+                  Title
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  className="w-full text-sm bg-[#F8F6F0] border border-[#E9E5DC] rounded-lg px-3 py-2"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-[#858276] mb-1">
+                    Author
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={editAuthor}
+                    onChange={(e) => setEditAuthor(e.target.value)}
+                    className="w-full text-sm bg-[#F8F6F0] border border-[#E9E5DC] rounded-lg px-3 py-2"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-[#858276] mb-1">
+                    Category
+                  </label>
+                  <input
+                    type="text"
+                    value={editCategory}
+                    onChange={(e) => setEditCategory(e.target.value)}
+                    className="w-full text-sm bg-[#F8F6F0] border border-[#E9E5DC] rounded-lg px-3 py-2"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-[#858276] mb-1">
+                    Status
+                  </label>
+                  <select
+                    value={editStatus}
+                    onChange={(e) => setEditStatus(e.target.value as BookStatus)}
+                    className="w-full text-sm bg-[#F8F6F0] border border-[#E9E5DC] rounded-lg px-3 py-2"
+                  >
+                    <option value="currently_reading">Currently Reading</option>
+                    <option value="want_to_read">Want to Read</option>
+                    <option value="completed">Completed</option>
+                    <option value="paused">Paused</option>
+                    <option value="abandoned">Abandoned</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-[#858276] mb-1">
+                    Progress ({editProgress}%)
+                  </label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={editProgress}
+                    onChange={(e) => setEditProgress(Number(e.target.value))}
+                    className="w-full accent-[#74866B] mt-2"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-[#858276] mb-1">
+                  Cover Image URL
+                </label>
+                <input
+                  type="url"
+                  value={editCoverUrl}
+                  onChange={(e) => setEditCoverUrl(e.target.value)}
+                  className="w-full text-xs font-mono bg-[#F8F6F0] border border-[#E9E5DC] rounded-lg px-3 py-2"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-[#858276] mb-1">
+                  Description
+                </label>
+                <textarea
+                  rows={2}
+                  value={editDescription}
+                  onChange={(e) => setEditDescription(e.target.value)}
+                  className="w-full text-sm bg-[#F8F6F0] border border-[#E9E5DC] rounded-lg px-3 py-2 resize-none"
+                />
+              </div>
+              <div className="pt-3 border-t border-[#E9E5DC] flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setEditBookOpen(false)}
+                  className="px-4 py-2 text-xs text-[#858276]"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 text-xs font-semibold rounded-button bg-[#74866B] text-white hover:bg-[#617258]"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       <QuickCaptureModal
         isOpen={quickCaptureOpen}
-        onClose={() => setQuickCaptureOpen(false)}
+        onClose={() => {
+          setQuickCaptureOpen(false);
+          setEditingNote(null);
+        }}
         defaultBookId={book.id}
+        editNote={editingNote}
         onNoteCreated={fetchBookData}
       />
     </div>

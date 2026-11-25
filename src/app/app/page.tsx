@@ -32,6 +32,7 @@ export default async function AppDashboard() {
   const notes = db.getNotes(user.id);
   const reviewHistory = db.getReviewHistory(user.id);
   const reviewQueue = db.getReviewQueue(user.id);
+  const pendingActions = db.getActions(user.id).filter((a) => a.status !== 'completed');
   const streak = calculateStreak(reviewHistory);
 
   // Statistics
@@ -373,6 +374,45 @@ export default async function AppDashboard() {
             </div>
           )}
         </section>
+
+        {/* Apply What You Read — Pending Action Items */}
+        {pendingActions.length > 0 && (
+          <section className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="font-serif text-xl text-[#292820]">
+                Apply What You Read
+              </h2>
+              <span className="text-xs text-[#858276]">
+                {pendingActions.length} pending {pendingActions.length === 1 ? 'commitment' : 'commitments'}
+              </span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {pendingActions.slice(0, 4).map((act) => {
+                const book = books.find((b) => b.id === act.bookId);
+                return (
+                  <Link
+                    key={act.id}
+                    href={book ? `/app/library/${book.id}` : '/app/library'}
+                    className="bg-white rounded-xl border border-[#E9E5DC] p-4 flex items-start justify-between gap-3 hover:border-[#74866B] transition-colors"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-[#292820] truncate">
+                        {act.title}
+                      </p>
+                      <p className="text-xs text-[#858276] mt-0.5 truncate">
+                        {book ? `From: ${book.title}` : 'Personal Action'}
+                        {act.dueDate ? ` • Due ${act.dueDate}` : ''}
+                      </p>
+                    </div>
+                    <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-[#E7EDE2] text-[#475A40] flex-shrink-0">
+                      Apply
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+        )}
       </div>
     </AppLayout>
   );

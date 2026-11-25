@@ -1,13 +1,14 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, Check, BookOpen, Tag as TagIcon, Sparkles, CornerDownLeft } from 'lucide-react';
-import { Book, NoteType } from '@/lib/types';
+import { X, Check, Tag as TagIcon, Sparkles, CornerDownLeft } from 'lucide-react';
+import { Book, Note, NoteType } from '@/lib/types';
 
 interface QuickCaptureModalProps {
   isOpen: boolean;
   onClose: () => void;
   defaultBookId?: string;
+  editNote?: Note | null;
   onNoteCreated?: () => void;
 }
 
@@ -15,6 +16,7 @@ export const QuickCaptureModal: React.FC<QuickCaptureModalProps> = ({
   isOpen,
   onClose,
   defaultBookId,
+  editNote,
   onNoteCreated,
 }) => {
   const [books, setBooks] = useState<Book[]>([]);
@@ -29,26 +31,43 @@ export const QuickCaptureModal: React.FC<QuickCaptureModalProps> = ({
   const [successSaved, setSuccessSaved] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  // Fetch user's books when modal opens
   useEffect(() => {
     if (isOpen) {
       setSuccessSaved(false);
       setErrorMessage('');
+
+      if (editNote) {
+        setSelectedBookId(editNote.bookId);
+        setNoteType(editNote.noteType);
+        setTitle(editNote.title || '');
+        setContent(editNote.content);
+        setPageNumber(editNote.pageNumber ? String(editNote.pageNumber) : '');
+        setPersonalReflection(editNote.personalReflection || '');
+        setTagsInput(editNote.tags.join(', '));
+      } else {
+        setTitle('');
+        setContent('');
+        setPageNumber('');
+        setPersonalReflection('');
+        setTagsInput('');
+        setNoteType('lesson');
+        if (defaultBookId) setSelectedBookId(defaultBookId);
+      }
+
       fetch('/api/books')
         .then((res) => res.json())
         .then((data) => {
           if (data.books) {
             setBooks(data.books);
-            if (!selectedBookId && data.books.length > 0) {
+            if (!editNote && !selectedBookId && data.books.length > 0) {
               setSelectedBookId(defaultBookId || data.books[0].id);
             }
           }
         })
         .catch(console.error);
     }
-  }, [isOpen, defaultBookId]);
+  }, [isOpen, defaultBookId, editNote]);
 
-  // Keyboard shortcut listener (Cmd/Ctrl + Enter to save, Esc to close)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!isOpen) return;
@@ -61,7 +80,7 @@ export const QuickCaptureModal: React.FC<QuickCaptureModalProps> = ({
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, selectedBookId, noteType, title, content, pageNumber, personalReflection, tagsInput]);
+  }, [isOpen, selectedBookId, noteType, title, content, pageNumber, personalReflection, tagsInput, editNote]);
 
   if (!isOpen) return null;
 
@@ -85,8 +104,11 @@ export const QuickCaptureModal: React.FC<QuickCaptureModalProps> = ({
       .filter((t) => t.length > 0);
 
     try {
-      const res = await fetch('/api/notes', {
-        method: 'POST',
+      const endpoint = editNote ? `/api/notes/${editNote.id}` : '/api/notes';
+      const method = editNote ? 'PUT' : 'POST';
+
+      const res = await fetch(endpoint, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           bookId: selectedBookId,
@@ -106,10 +128,15 @@ export const QuickCaptureModal: React.FC<QuickCaptureModalProps> = ({
         return;
       }
 
-      setSuccessSaved(true);
       setIsSubmitting(false);
       if (onNoteCreated) onNoteCreated();
-    } catch (err) {
+
+      if (editNote) {
+        onClose();
+      } else {
+        setSuccessSaved(true);
+      }
+    } catch {
       setErrorMessage('Network error occurred while saving.');
       setIsSubmitting(false);
     }
@@ -136,14 +163,13 @@ export const QuickCaptureModal: React.FC<QuickCaptureModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-150">
       <div className="w-full max-w-xl bg-[#FFFFFF] rounded-2xl border border-[#E9E5DC] shadow-elevated overflow-hidden flex flex-col max-h-[90vh]">
-        {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#E9E5DC] bg-[#FAF8F5]">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded-md bg-[#74866B]/15 text-[#74866B] flex items-center justify-center">
               <Sparkles className="w-3.5 h-3.5" />
             </div>
             <h3 className="font-serif text-lg font-semibold text-[#292820]">
-              Capture an Idea
+              {editNote ? 'Edit Saved Idea' : 'Capture an Idea'}
             </h3>
           </div>
           <button
@@ -154,7 +180,6 @@ export const QuickCaptureModal: React.FC<QuickCaptureModalProps> = ({
           </button>
         </div>
 
-        {/* Form Body */}
         {successSaved ? (
           <div className="p-8 text-center flex flex-col items-center my-auto">
             <div className="w-12 h-12 rounded-full bg-[#E7EDE2] text-[#6F8F70] flex items-center justify-center mb-4">
@@ -189,29 +214,26 @@ export const QuickCaptureModal: React.FC<QuickCaptureModalProps> = ({
               </div>
             )}
 
-            {/* Book Selection & Note Type */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-[#858276] mb-1.5">
                   Source Book *
                 </label>
-                <div className="relative">
-                  <select
-                    value={selectedBookId}
-                    onChange={(e) => setSelectedBookId(e.target.value)}
-                    className="w-full text-sm bg-[#F8F6F0] border border-[#E9E5DC] rounded-lg px-3 py-2 text-[#292820] focus:border-[#74866B] focus:bg-white transition-colors"
-                  >
-                    {books.length === 0 ? (
-                      <option value="">No books yet. Add one first.</option>
-                    ) : (
-                      books.map((b) => (
-                        <option key={b.id} value={b.id}>
-                          {b.title} ({b.author})
-                        </option>
-                      ))
-                    )}
-                  </select>
-                </div>
+                <select
+                  value={selectedBookId}
+                  onChange={(e) => setSelectedBookId(e.target.value)}
+                  className="w-full text-sm bg-[#F8F6F0] border border-[#E9E5DC] rounded-lg px-3 py-2 text-[#292820] focus:border-[#74866B] focus:bg-white transition-colors"
+                >
+                  {books.length === 0 ? (
+                    <option value="">No books yet. Add one first.</option>
+                  ) : (
+                    books.map((b) => (
+                      <option key={b.id} value={b.id}>
+                        {b.title} ({b.author})
+                      </option>
+                    ))
+                  )}
+                </select>
               </div>
 
               <div>
@@ -232,7 +254,6 @@ export const QuickCaptureModal: React.FC<QuickCaptureModalProps> = ({
               </div>
             </div>
 
-            {/* Optional Title & Page Number */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="sm:col-span-2">
                 <label className="block text-xs font-semibold uppercase tracking-wider text-[#858276] mb-1.5">
@@ -261,7 +282,6 @@ export const QuickCaptureModal: React.FC<QuickCaptureModalProps> = ({
               </div>
             </div>
 
-            {/* Main Content */}
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-[#858276] mb-1.5">
                 The Lesson or Quote *
@@ -276,7 +296,6 @@ export const QuickCaptureModal: React.FC<QuickCaptureModalProps> = ({
               />
             </div>
 
-            {/* Personal Reflection & Real-life Application */}
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-[#858276] mb-1.5">
                 Personal Application / Reflection (Optional)
@@ -290,7 +309,6 @@ export const QuickCaptureModal: React.FC<QuickCaptureModalProps> = ({
               />
             </div>
 
-            {/* Tags */}
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-[#858276] mb-1.5">
                 Tags (Comma separated)
@@ -307,7 +325,6 @@ export const QuickCaptureModal: React.FC<QuickCaptureModalProps> = ({
               </div>
             </div>
 
-            {/* Footer Buttons */}
             <div className="pt-3 border-t border-[#E9E5DC] flex items-center justify-between">
               <span className="text-xs text-[#858276] hidden sm:flex items-center gap-1">
                 <span>Press</span>
@@ -331,7 +348,9 @@ export const QuickCaptureModal: React.FC<QuickCaptureModalProps> = ({
                   className="flex items-center gap-1.5 px-4 py-2 text-sm rounded-button bg-[#74866B] hover:bg-[#617258] text-white font-medium shadow-sm disabled:opacity-50 transition-colors"
                 >
                   <CornerDownLeft className="w-3.5 h-3.5" />
-                  <span>{isSubmitting ? 'Saving...' : 'Save Knowledge'}</span>
+                  <span>
+                    {isSubmitting ? 'Saving...' : editNote ? 'Update Knowledge' : 'Save Knowledge'}
+                  </span>
                 </button>
               </div>
             </div>

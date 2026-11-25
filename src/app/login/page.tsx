@@ -3,12 +3,13 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { BookOpen, ArrowRight, Loader2, Sparkles } from 'lucide-react';
+import { BookOpen, Loader2, Eye, EyeOff, ArrowRight } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isDemoLoading, setIsDemoLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -27,14 +28,14 @@ export default function LoginPage() {
 
       const data = await res.json();
       if (!res.ok) {
-        setErrorMessage(data.error || 'Invalid email or password.');
+        setErrorMessage(data.error || 'Invalid credentials.');
         setIsLoading(false);
         return;
       }
 
       router.push(data.redirectTo || '/app');
       router.refresh();
-    } catch (err) {
+    } catch {
       setErrorMessage('Network connection error. Please try again.');
       setIsLoading(false);
     }
@@ -55,7 +56,7 @@ export default function LoginPage() {
 
       router.push('/app');
       router.refresh();
-    } catch (err) {
+    } catch {
       setErrorMessage('Network error with demo login.');
       setIsDemoLoading(false);
     }
@@ -63,7 +64,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-[#F8F6F0] flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center px-4">
         <Link href="/" className="inline-flex items-center gap-2.5 mb-6 group">
           <div className="w-10 h-10 rounded-xl bg-[#74866B] flex items-center justify-center text-white shadow-sm transition-transform group-hover:scale-105">
             <BookOpen className="w-5 h-5" />
@@ -72,11 +73,11 @@ export default function LoginPage() {
             ReadBack
           </span>
         </Link>
-        <h2 className="font-serif text-2xl font-normal text-[#292820]">
-          Welcome back to your library
+        <h2 className="font-serif text-3xl font-normal text-[#292820]">
+          Welcome back
         </h2>
-        <p className="mt-2 text-xs text-[#858276]">
-          Enter your email to access your saved knowledge and daily reviews.
+        <p className="mt-2 text-xs sm:text-sm text-[#858276]">
+          Sign in with your email to open your personal knowledge library.
         </p>
       </div>
 
@@ -116,15 +117,25 @@ export default function LoginPage() {
                   Forgot password?
                 </Link>
               </div>
-              <input
-                type="password"
-                required
-                autoComplete="current-password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full text-sm bg-[#F8F6F0] border border-[#E9E5DC] rounded-xl px-3.5 py-2.5 text-[#292820] placeholder:text-[#858276]/60 focus:border-[#74866B] focus:bg-white transition-colors"
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  autoComplete="current-password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full text-sm bg-[#F8F6F0] border border-[#E9E5DC] rounded-xl pl-3.5 pr-10 py-2.5 text-[#292820] placeholder:text-[#858276]/60 focus:border-[#74866B] focus:bg-white transition-colors"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#858276] hover:text-[#292820]"
+                  aria-label="Toggle password visibility"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
 
             <button
@@ -132,36 +143,31 @@ export default function LoginPage() {
               disabled={isLoading || isDemoLoading}
               className="w-full mt-2 py-2.5 px-4 rounded-button bg-[#74866B] hover:bg-[#617258] text-white text-sm font-medium shadow-sm transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50"
             >
-              {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+              {isLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <ArrowRight className="w-4 h-4" />
+              )}
               <span>{isLoading ? 'Signing in...' : 'Sign in to ReadBack'}</span>
             </button>
           </form>
 
-          {/* Quick Demo Login Option */}
-          <div className="mt-6 pt-6 border-t border-[#E9E5DC]">
-            <p className="text-[11px] text-[#858276] text-center mb-3">
-              Want to explore with pre-populated books and notes?
-            </p>
+          <div className="mt-6 text-center text-xs text-[#858276]">
+            New to ReadBack?{' '}
+            <Link href="/signup" className="font-semibold text-[#74866B] hover:underline">
+              Create your personal library →
+            </Link>
+          </div>
+
+          <div className="mt-5 pt-5 border-t border-[#E9E5DC] text-center">
             <button
               type="button"
               onClick={handleDemoLogin}
               disabled={isLoading || isDemoLoading}
-              className="w-full py-2.5 px-4 rounded-button bg-[#FAF8F5] hover:bg-[#F1EEE6] border border-[#E9E5DC] text-[#292820] text-xs font-semibold transition-all flex items-center justify-center gap-2"
+              className="text-xs text-[#858276] hover:text-[#292820] underline underline-offset-4 transition-colors disabled:opacity-50"
             >
-              {isDemoLoading ? (
-                <Loader2 className="w-4 h-4 animate-spin text-[#74866B]" />
-              ) : (
-                <Sparkles className="w-3.5 h-3.5 text-[#74866B]" />
-              )}
-              <span>One-Click Demo Account (Arthur's Library)</span>
+              {isDemoLoading ? 'Opening sample library...' : 'Preview with a sample reading library'}
             </button>
-          </div>
-
-          <div className="mt-6 text-center text-xs text-[#858276]">
-            Don't have an account yet?{' '}
-            <Link href="/signup" className="font-semibold text-[#74866B] hover:underline">
-              Start your free library →
-            </Link>
           </div>
         </div>
       </div>

@@ -25,7 +25,24 @@ export interface DatabaseSchema {
 }
 
 const DATA_DIR = path.join(process.cwd(), 'data');
-const DB_FILE = path.join(DATA_DIR, 'readback.json');
+const SOURCE_DB_FILE = path.join(DATA_DIR, 'readback.json');
+const TMP_DB_FILE = path.join(require('os').tmpdir(), 'readback-db.json');
+
+function resolveDbFile(): string {
+  // On Vercel or read-only deployments, process.cwd()/data is read-only.
+  if (process.env.VERCEL === '1') {
+    return TMP_DB_FILE;
+  }
+  try {
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+    fs.accessSync(DATA_DIR, fs.constants.W_OK);
+    return SOURCE_DB_FILE;
+  } catch {
+    return TMP_DB_FILE;
+  }
+}
 
 // Initial seed data for a rich, realistic reading experience
 const INITIAL_SEED: DatabaseSchema = {
@@ -382,15 +399,23 @@ const INITIAL_SEED: DatabaseSchema = {
 };
 
 function ensureDbFile(): DatabaseSchema {
+  const dbFile = resolveDbFile();
   try {
-    if (!fs.existsSync(DATA_DIR)) {
-      fs.mkdirSync(DATA_DIR, { recursive: true });
-    }
-    if (!fs.existsSync(DB_FILE)) {
-      fs.writeFileSync(DB_FILE, JSON.stringify(INITIAL_SEED, null, 2), 'utf-8');
+    if (!fs.existsSync(dbFile)) {
+      // If using tmp on serverless, seed from bundled data/readback.json if available
+      if (dbFile !== SOURCE_DB_FILE && fs.existsSync(SOURCE_DB_FILE)) {
+        const bundled = fs.readFileSync(SOURCE_DB_FILE, 'utf-8');
+        fs.writeFileSync(dbFile, bundled, 'utf-8');
+        return JSON.parse(bundled);
+      }
+      const dir = path.dirname(dbFile);
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+      fs.writeFileSync(dbFile, JSON.stringify(INITIAL_SEED, null, 2), 'utf-8');
       return INITIAL_SEED;
     }
-    const raw = fs.readFileSync(DB_FILE, 'utf-8');
+    const raw = fs.readFileSync(dbFile, 'utf-8');
     return JSON.parse(raw);
   } catch (err) {
     console.error('Error reading database file:', err);
@@ -399,13 +424,15 @@ function ensureDbFile(): DatabaseSchema {
 }
 
 function saveDb(data: DatabaseSchema): void {
+  const dbFile = resolveDbFile();
   try {
-    if (!fs.existsSync(DATA_DIR)) {
-      fs.mkdirSync(DATA_DIR, { recursive: true });
+    const dir = path.dirname(dbFile);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
     }
-    const tempFile = `${DB_FILE}.tmp`;
+    const tempFile = `${dbFile}.tmp`;
     fs.writeFileSync(tempFile, JSON.stringify(data, null, 2), 'utf-8');
-    fs.renameSync(tempFile, DB_FILE);
+    fs.renameSync(tempFile, dbFile);
   } catch (err) {
     console.error('Error writing database file:', err);
   }
@@ -419,7 +446,23 @@ export const db = {
   },
   getProfileByEmail: (email: string): UserProfile | undefined => {
     const data = ensureDbFile();
-    return data.profiles.find((p) => p.email.toLowerCase() === email.toLowerCase());
+    return data.profiles.find(
+      (p) => p.email && p.email.toLowerCase() === email.trim().toLowerCase()
+    );
+  },
+  getProfileByPhone: (phone: string): UserProfile | undefined => {
+    const data = ensureDbFile();
+    const norm = phone.replace(/\D/g, '');
+    return data.profiles.find(
+      (p) => p.phone && p.phone.replace(/\D/g, '') === norm
+    );
+  },
+  getProfileByIdentifier: (identifier: string): UserProfile | undefined => {
+    const trimmed = identifier.trim();
+    if (trimmed.includes('@')) {
+      return db.getProfileByEmail(trimmed);
+    }
+    return db.getProfileByPhone(trimmed);
   },
   saveProfile: (profile: UserProfile): UserProfile => {
     const data = ensureDbFile();
@@ -714,11 +757,15 @@ export const db = {
     return pref;
   },
 
-  // Export data
+  // Export data (never include passwordHash)
   exportUserData: (userId: string) => {
     const data = ensureDbFile();
+    const rawProfile = data.profiles.find((p) => p.id === userId);
+    const safeProfile = rawProfile
+      ? (({ passwordHash: _ph, ...rest }) => rest)(rawProfile)
+      : undefined;
     return {
-      profile: data.profiles.find((p) => p.id === userId),
+      profile: safeProfile,
       books: data.books.filter((b) => b.userId === userId),
       notes: data.notes.filter((n) => n.userId === userId),
       tags: data.tags.filter((t) => t.userId === userId),
@@ -727,5 +774,25 @@ export const db = {
       subscription: data.subscriptions.find((s) => s.userId === userId),
       exportedAt: new Date().toISOString(),
     };
+  },
+
+  // Delete entire user account and all associated data
+  deleteUserAccount: (userId: string): boolean => {
+    const data = ensureDbFile();
+    const idx = data.profiles.findIndex((p) => p.id === userId);
+    if (idx === -1) return false;
+
+    data.profiles.splice(idx, 1);
+    data.books = data.books.filter((b) => b.userId !== userId);
+    data.notes = data.notes.filter((n) => n.userId !== userId);
+    data.tags = data.tags.filter((t) => t.userId !== userId);
+    data.reviewSchedules = data.reviewSchedules.filter((rs) => rs.userId !== userId);
+    data.reviewHistory = data.reviewHistory.filter((rh) => rh.userId !== userId);
+    data.actions = data.actions.filter((a) => a.userId !== userId);
+    data.subscriptions = data.subscriptions.filter((s) => s.userId !== userId);
+    data.notificationPreferences = data.notificationPreferences.filter((np) => np.userId !== userId);
+
+    saveDb(data);
+    return true;
   },
 };

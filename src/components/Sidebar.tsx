@@ -175,7 +175,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, onOpenQuickCapture }) =>
               <p className="text-xs font-semibold text-[#292820] truncate">
                 {user.displayName}
               </p>
-              <p className="text-[11px] text-[#858276] truncate">{user.email}</p>
+              <p className="text-[11px] text-[#858276] truncate">
+                {user.email || user.phone || 'Personal Library'}
+              </p>
             </div>
           </Link>
           <button

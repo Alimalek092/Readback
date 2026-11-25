@@ -8,8 +8,7 @@ import {
   Star,
   BookOpen,
   Trash2,
-  Tag as TagIcon,
-  Sparkles,
+  Edit3,
   Plus,
 } from 'lucide-react';
 import { Note, Book, UserProfile, Tag } from '@/lib/types';
@@ -26,6 +25,7 @@ export default function NotesLibraryPage() {
   const [selectedTag, setSelectedTag] = useState<string>('all');
   const [onlyFavourites, setOnlyFavourites] = useState(false);
   const [quickCaptureOpen, setQuickCaptureOpen] = useState(false);
+  const [editingNote, setEditingNote] = useState<Note | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchNotes = () => {
@@ -244,6 +244,16 @@ export default function NotesLibraryPage() {
 
                       <div className="flex items-center gap-1">
                         <button
+                          onClick={() => {
+                            setEditingNote(note);
+                            setQuickCaptureOpen(true);
+                          }}
+                          className="p-1 text-[#858276] hover:text-[#292820] transition-colors"
+                          title="Edit note"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
                           onClick={() => handleToggleFavourite(note.id)}
                           className={`p-1 rounded transition-colors ${
                             note.isFavourite
@@ -351,7 +361,11 @@ export default function NotesLibraryPage() {
 
       <QuickCaptureModal
         isOpen={quickCaptureOpen}
-        onClose={() => setQuickCaptureOpen(false)}
+        onClose={() => {
+          setQuickCaptureOpen(false);
+          setEditingNote(null);
+        }}
+        editNote={editingNote}
         onNoteCreated={fetchNotes}
       />
     </div>

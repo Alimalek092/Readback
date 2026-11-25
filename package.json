@@ -12,6 +12,7 @@
     "test:integration": "node \"C:\\Users\\admin\\.gemini\\antigravity\\scratch\\patni-community\\node_modules\\tsx\\dist\\cli.mjs\" integration-test.ts"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.45.0",
     "@vercel/analytics": "^1.6.1",
     "@vercel/speed-insights": "^2.0.0",
     "clsx": "^2.1.1",
