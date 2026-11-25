@@ -1,8 +1,16 @@
 import React from 'react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { BookOpen, ArrowRight, Heart, Sparkles, CheckCircle2 } from 'lucide-react';
 import { PublicNavbar } from '@/components/PublicNavbar';
 import { PublicFooter } from '@/components/PublicFooter';
+
+export const metadata: Metadata = {
+  title: 'About ReadBack — Why We Built a Knowledge Retention App for Readers',
+  description:
+    'Learn the philosophy behind ReadBack: why passive reading fades, how spaced repetition helps you remember book lessons, and our reader-first privacy commitment.',
+  alternates: { canonical: '/about' },
+};
 
 export default function AboutPage() {
   return (

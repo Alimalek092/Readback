@@ -3,26 +3,59 @@ import './globals.css';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://readback-omega.vercel.app';
+
 export const metadata: Metadata = {
-  title: 'ReadBack — Read less forgetfully. Learn more permanently.',
+  metadataBase: new URL(BASE_URL),
+  title: {
+    default: 'ReadBack — Remember What You Read | Personal Knowledge Library',
+    template: '%s | ReadBack',
+  },
   description:
-    'A personal knowledge companion that helps readers capture, organize, remember and apply lessons from the books they read using spaced repetition.',
+    'ReadBack helps you capture book lessons, organize reading highlights, and remember what you read permanently with daily spaced repetition.',
   keywords: [
-    'book notes',
-    'spaced repetition for readers',
-    'personal knowledge management',
-    'reading journal',
     'remember what you read',
-    'book highlights organizer',
+    'book notes organizer',
+    'spaced repetition for book notes',
+    'book highlight manager',
+    'personal book library',
+    'reading notes app',
+    'knowledge retention app',
+    'personal knowledge library',
+    'organize reading notes',
+    'remember book lessons',
   ],
-  authors: [{ name: 'ReadBack Team' }],
+  authors: [{ name: 'ReadBack' }],
+  creator: 'ReadBack',
+  publisher: 'ReadBack',
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
-    title: 'ReadBack — Personal Knowledge SaaS for Readers',
-    description: "Don't just finish books. Remember what they teach you.",
-    url: 'https://readback.app',
+    title: 'ReadBack — Read less forgetfully. Learn more permanently.',
+    description:
+      "Don't just finish books. Remember what they teach you. Capture book ideas, organize highlights, and revisit lessons with spaced repetition.",
+    url: BASE_URL,
     siteName: 'ReadBack',
     locale: 'en_US',
     type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'ReadBack — Remember What You Read',
+    description:
+      'Capture meaningful ideas from your books, organize your knowledge, and remember them forever with daily spaced repetition.',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
   icons: {
     icon: '/favicon.ico',

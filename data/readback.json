@@ -26,8 +26,8 @@
       "timezone": "UTC",
       "theme": "light",
       "onboardingCompleted": true,
-      "createdAt": "2026-11-25T14:18:19.525Z",
-      "updatedAt": "2026-11-25T14:18:19.528Z"
+      "createdAt": "2026-11-25T14:33:47.275Z",
+      "updatedAt": "2026-11-25T14:33:47.279Z"
     }
   ],
   "books": [
@@ -347,13 +347,13 @@
       "id": "rs_03",
       "userId": "usr_demo_readback_01",
       "noteId": "note_dw_01",
-      "nextReviewAt": "2026-11-05T10:00:00.000Z",
-      "intervalDays": 14,
-      "easeFactor": 2.6,
-      "repetitions": 4,
+      "nextReviewAt": "2026-12-31T14:33:49.552Z",
+      "intervalDays": 36,
+      "easeFactor": 2.7,
+      "repetitions": 5,
       "reviewStatus": "active",
       "createdAt": "2026-08-15T09:00:00.000Z",
-      "updatedAt": "2026-10-22T09:00:00.000Z"
+      "updatedAt": "2026-11-25T14:33:49.559Z"
     },
     {
       "id": "rs_04",
@@ -440,6 +440,15 @@
       "reviewedAt": "2026-11-25T14:18:21.259Z",
       "previousInterval": 18,
       "nextInterval": 49
+    },
+    {
+      "id": "rh_1795617229559_u6xr",
+      "userId": "usr_demo_readback_01",
+      "noteId": "note_dw_01",
+      "rating": "easy",
+      "reviewedAt": "2026-11-25T14:33:49.559Z",
+      "previousInterval": 14,
+      "nextInterval": 36
     }
   ],
   "actions": [

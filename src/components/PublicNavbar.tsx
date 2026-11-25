@@ -25,8 +25,8 @@ export const PublicNavbar: React.FC = () => {
           <Link href="/#how-it-works" className="hover:text-[#292820] transition-colors">
             The 5-Step Loop
           </Link>
-          <Link href="/#features" className="hover:text-[#292820] transition-colors">
-            Features
+          <Link href="/guides" className="hover:text-[#292820] transition-colors">
+            Guides
           </Link>
           <Link href="/pricing" className="hover:text-[#292820] transition-colors">
             Pricing

@@ -16,7 +16,10 @@ import {
 } from 'lucide-react';
 import { PublicNavbar } from '@/components/PublicNavbar';
 import { PublicFooter } from '@/components/PublicFooter';
+import { JsonLd } from '@/components/JsonLd';
 import { PRICING_PLANS } from '@/lib/subscription';
+
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://readback-omega.vercel.app';
 
 export default function LandingPage() {
   const loopSteps = [
@@ -105,8 +108,54 @@ export default function LandingPage() {
     },
   ];
 
+  const structuredData = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'SoftwareApplication',
+      name: 'ReadBack',
+      applicationCategory: 'EducationalApplication',
+      operatingSystem: 'Web',
+      url: BASE_URL,
+      description:
+        'A personal knowledge companion that helps readers capture, organize, remember, and apply lessons from the books they read using spaced repetition.',
+      offers: [
+        {
+          '@type': 'Offer',
+          name: 'Free Library',
+          price: '0',
+          priceCurrency: 'USD',
+        },
+        {
+          '@type': 'Offer',
+          name: 'ReadBack Plus Monthly',
+          price: '2.99',
+          priceCurrency: 'USD',
+        },
+      ],
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: 'ReadBack',
+      url: BASE_URL,
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: faqs.map((item) => ({
+        '@type': 'Question',
+        name: item.q,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: item.a,
+        },
+      })),
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-[#F8F6F0] text-[#292820] flex flex-col">
+      <JsonLd data={structuredData} />
       <PublicNavbar />
 
       {/* Hero Section */}

@@ -51,7 +51,45 @@ export const PublicFooter: React.FC = () => {
             </ul>
           </div>
 
-          {/* Resources */}
+          {/* Guides & SEO Resources */}
+          <div>
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-[#292820] mb-3">
+              Reading Guides
+            </h4>
+            <ul className="space-y-2 text-xs">
+              <li>
+                <Link href="/guides" className="hover:text-[#292820] transition-colors">
+                  All Retention Guides
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/guides/spaced-repetition-for-books"
+                  className="hover:text-[#292820] transition-colors"
+                >
+                  Spaced Repetition for Books
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/guides/how-to-organize-book-notes"
+                  className="hover:text-[#292820] transition-colors"
+                >
+                  Organize Book Notes
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/guides/book-highlight-manager"
+                  className="hover:text-[#292820] transition-colors"
+                >
+                  Book Highlight Manager
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Company */}
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-wider text-[#292820] mb-3">
               Company
@@ -73,16 +111,6 @@ export const PublicFooter: React.FC = () => {
                 </Link>
               </li>
             </ul>
-          </div>
-
-          {/* Reading Philosophy */}
-          <div>
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-[#292820] mb-3">
-              Philosophy
-            </h4>
-            <p className="text-xs text-[#858276] leading-relaxed italic font-serif">
-              "You do not rise to the level of your reading volume; you fall to the level of the lessons you actually retain and live by."
-            </p>
           </div>
         </div>
 

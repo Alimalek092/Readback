@@ -1,7 +1,14 @@
 import React from 'react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { PublicNavbar } from '@/components/PublicNavbar';
 import { PublicFooter } from '@/components/PublicFooter';
+
+export const metadata: Metadata = {
+  title: 'Terms of Service',
+  description: 'Terms and conditions for using the ReadBack personal knowledge platform.',
+  alternates: { canonical: '/terms' },
+};
 
 export default function TermsPage() {
   return (

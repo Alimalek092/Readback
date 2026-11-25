@@ -1,8 +1,16 @@
 import React from 'react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { PublicNavbar } from '@/components/PublicNavbar';
 import { PublicFooter } from '@/components/PublicFooter';
 import { ShieldCheck, Lock, EyeOff, FileText } from 'lucide-react';
+
+export const metadata: Metadata = {
+  title: 'Privacy Policy — Your Book Notes Stay Private',
+  description:
+    'ReadBack never sells your reading data or trains AI models on your private book highlights and reflections.',
+  alternates: { canonical: '/privacy' },
+};
 
 export default function PrivacyPage() {
   return (
